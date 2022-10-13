@@ -22,8 +22,9 @@ class NyaaSiDownloader():
     magenta = "\x1b[35m"
     cyan = "\x1b[36m"
     white = "\x1b[37m"
-    categoryes = ["0_0", "1_0", "1_1", "1_2", "1_3", "1_4", "2_0", "2_1", "2_2", "3_0", "3_1",
+    categories = ["0_0", "1_0", "1_1", "1_2", "1_3", "1_4", "2_0", "2_1", "2_2", "3_0", "3_1",
                   "3_2", "3_3", "4_0", "4_1", "4_2", "4_3", "4_4", "5_0", "5_1", "5_2", "6_0", "6_1", "6_2"]
+    search_type = categories[0]
     # config
     autoadd = False
     # end config
@@ -50,7 +51,6 @@ class NyaaSiDownloader():
         '''Parsing function'''
         # extracting data in json format
         for parsed in BeautifulSoup(req.text, "html.parser").findAll('tr'):
-            # print(parsed)
             size = ""
             seed = ""
             leech = ""
@@ -69,6 +69,7 @@ class NyaaSiDownloader():
             for elem in parsed.findAll('td', attrs={'class': 'text-center'}):
                 for k in elem:
                     if x == 3:
+                        # sometimes there is no download link
                         try:
                             magnet = k.get('href')
                         except AttributeError:
@@ -154,13 +155,13 @@ class NyaaSiDownloader():
     def searchnyaasi_request(name_s):
         '''Request to the torrent site'''
         # sending get request and saving the response as response object
-        url = f"https://nyaa.si/?f=0&c=0_0&q=/{name_s}"
+        url = f"https://nyaa.si/?f=0&c={NyaaSiDownloader.search_type}&q=/{name_s}"
         req = requests.get(url=url, params={})
         NyaaSiDownloader.searchnyaasi(req)
 
     def avvia_ricerca(self):
         '''avvio ricerca GUI'''
-        from PySide2.QtWidgets import QTableWidget, QPushButton, QApplication
+        from PySide2.QtWidgets import QTableWidget, QPushButton, QApplication, QComboBox
         # reset to allow multiple search
         NyaaSiDownloader.json_torrent = '''
     {
@@ -168,6 +169,8 @@ class NyaaSiDownloader():
             ]
     }
     '''
+        NyaaSiDownloader.category = NyaaSiDownloader.window.findChild(QComboBox, "category")
+        NyaaSiDownloader.search_type = NyaaSiDownloader.categories[NyaaSiDownloader.category.currentIndex()]
         name_input = NyaaSiDownloader.titolo.text()
         NyaaSiDownloader.searchnyaasi_request(str(name_input))
         # populate tabel

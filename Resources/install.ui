@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1378</width>
+    <width>1471</width>
     <height>920</height>
    </rect>
   </property>
@@ -76,6 +76,125 @@
          </layout>
         </item>
         <item>
+         <widget class="QComboBox" name="category">
+          <item>
+           <property name="text">
+            <string>All Categories</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Anime</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Anime Music Video</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- English-Translated</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Non-English-Translated</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Raw</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Audio</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Lossless</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Lossy</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Literature</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- English Translated</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Non-English-Translated</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Raw</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Live Action</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- English-Translated</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Non-English-Translated</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Raw</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Pictures</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Graphic</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Photos</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Software</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Application</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>- Games</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
          <widget class="QLineEdit" name="titolo"/>
         </item>
         <item>
@@ -117,32 +236,32 @@
           </property>
           <column>
            <property name="text">
-            <string>Titolo</string>
+            <string>Name</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>Dimensione</string>
+            <string>Size</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>Peer</string>
+            <string>Seeders</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>Seek</string>
+            <string>Leechers</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>Risoluzione</string>
+            <string>Category</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>Data</string>
+            <string>Date</string>
            </property>
           </column>
          </widget>
