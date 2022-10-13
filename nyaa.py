@@ -1,5 +1,4 @@
 '''Simple parsing  script to obtain magnet link of a torrent'''
-from unicodedata import category
 from bs4 import BeautifulSoup
 import json
 import os
@@ -26,7 +25,6 @@ class NyaaSiDownloader():
     categoryes = ["0_0", "1_0", "1_1", "1_2", "1_3", "1_4", "2_0", "2_1", "2_2", "3_0", "3_1",
                   "3_2", "3_3", "4_0", "4_1", "4_2", "4_3", "4_4", "5_0", "5_1", "5_2", "6_0", "6_1", "6_2"]
     # config
-    torrent_pages = 3
     autoadd = False
     # end config
 
@@ -59,7 +57,10 @@ class NyaaSiDownloader():
             date_t = ""
             title = ""
             magnet = ""
+            type_torr = ""
             x = 0
+            for elem in parsed.findAll('img', alt=True):
+                type_torr = elem['alt']
             for elem in parsed.findAll('td', attrs={'colspan': '2'}):
                 for k in elem:
                     if k.string is not None:
@@ -68,7 +69,10 @@ class NyaaSiDownloader():
             for elem in parsed.findAll('td', attrs={'class': 'text-center'}):
                 for k in elem:
                     if x == 3:
-                        magnet = k.get('href')
+                        try:
+                            magnet = k.get('href')
+                        except AttributeError:
+                            title = ""
                     if x == 5:
                         size = k.string
                     if x == 6:
@@ -79,23 +83,26 @@ class NyaaSiDownloader():
                         leech = k.string
                     x += 1
                 leech = (elem.text)
-            link = ""
-            type_torr = ""
             # create a json with torrent info
             if len(title) > 1:
                 temp = {
                     'name': title,
                     'size': float(size.split(" ")[0]),
+                    'type': size.split(" ")[1],
                     'seed': seed,
                     'leech': leech,
                     'movie_type': type_torr,
-                    'type': size.split(" ")[1],
                     'date': date_t,
                     'magnet': magnet
                 }
                 data = json.loads(NyaaSiDownloader.json_torrent)
                 data['Torrent'].append(temp)
                 NyaaSiDownloader.json_torrent = json.dumps(data, indent=4)
+                sorted_obj = dict(data)
+                sorted_obj['Torrent'] = sorted(
+                    data['Torrent'], key=lambda pos: pos['size'], reverse=True)
+                NyaaSiDownloader.json_torrent = json.dumps(
+                    sorted_obj, indent=4)
 
 
     @staticmethod
@@ -135,30 +142,21 @@ class NyaaSiDownloader():
         print(
             f" {NyaaSiDownloader.red}DATE: {elem['date']}{NyaaSiDownloader.reset_clr}")
         print(
-            f" {NyaaSiDownloader.green}DIM: {str(elem['size'])} {elem['type']}{NyaaSiDownloader.reset_clr}")
+            f" {NyaaSiDownloader.green}DIM: {str(elem['size'])} {elem['type']} {NyaaSiDownloader.reset_clr}")
         print(
             f" {NyaaSiDownloader.yellow}SEED: {elem['seed']}{NyaaSiDownloader.reset_clr}")
         print(
             f" {NyaaSiDownloader.white}LEECH: {elem['leech']}{NyaaSiDownloader.reset_clr}")
         print(
-            f" {NyaaSiDownloader.magenta}RESOLUTION: {elem['movie_type']}{NyaaSiDownloader.reset_clr}")
+            f" {NyaaSiDownloader.magenta}TYPE: {elem['movie_type']}{NyaaSiDownloader.reset_clr}")
 
     @staticmethod
     def searchnyaasi_request(name_s):
         '''Request to the torrent site'''
         # sending get request and saving the response as response object
-        max_elem = NyaaSiDownloader.torrent_pages
-        for elem in range(1, max_elem + 1):
-            url = f"https://nyaa.si/?f=0&c=0_0&q=call+of"
-            req = requests.get(url=url, params={})
-            if elem == 1:
-                parsed_html = BeautifulSoup(req.text, "html.parser")
-                if len(parsed_html.findAll('tr')) == 1:
-                    print(
-                        f"{NyaaSiDownloader.red}No torrent founded for \"{name_s}\"{NyaaSiDownloader.reset_clr}")
-                    print("")
-                    sys.exit(0)
-            NyaaSiDownloader.searchnyaasi(req)
+        url = f"https://nyaa.si/?f=0&c=0_0&q=/{name_s}"
+        req = requests.get(url=url, params={})
+        NyaaSiDownloader.searchnyaasi(req)
 
     def avvia_ricerca(self):
         '''avvio ricerca GUI'''
@@ -336,7 +334,7 @@ class NyaaSiDownloader():
             else:
                 name_input = sys.argv[1]
                 for elem in sys.argv[2:]:
-                    name_input += '%20' + elem
+                    name_input += '+' + elem
             NyaaSiDownloader.searchnyaasi_request(str(name_input))
             # print list
             torrent = 1
