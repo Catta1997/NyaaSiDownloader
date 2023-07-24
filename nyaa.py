@@ -9,9 +9,11 @@ import re
 import requests
 
 
+
 class NyaaSiDownloader():
     '''Torrent magnet link'''
     # text format
+    workflow:bool
     bold_text = "\033[1m"
     underscore = "\x1b[4m"
     reset_clr = "\x1b[0m"
@@ -37,7 +39,7 @@ class NyaaSiDownloader():
     '''
 
     @staticmethod
-    def verify_magnet_link(magnet_link):
+    def verify_magnet_link(magnet_link: str) -> bool:
         '''verify a magnet link using regex'''
         result = re.fullmatch(
             "^magnet:\?xt=urn:btih:[0-9a-fA-F]{40,}.*$", magnet_link)
@@ -47,7 +49,7 @@ class NyaaSiDownloader():
             return False
 
     @staticmethod
-    def searchnyaasi(req):
+    def searchnyaasi(req: requests.models.Response) -> None:
         '''Parsing function'''
         # extracting data in json format
         for parsed in BeautifulSoup(req.text, "html.parser").findAll('tr'):
@@ -64,7 +66,7 @@ class NyaaSiDownloader():
             for elem in parsed.findAll('td', attrs={'colspan': '2'}):
                 for k in elem:
                     if k.string is not None:
-                        if len(k.string)>5:
+                        if len(k.string) > 5:
                             title = k.string
             for elem in parsed.findAll('td', attrs={'class': 'text-center'}):
                 for k in elem:
@@ -105,9 +107,8 @@ class NyaaSiDownloader():
                 NyaaSiDownloader.json_torrent = json.dumps(
                     sorted_obj, indent=4)
 
-
     @staticmethod
-    def print_elem_gui(elem, torrent):
+    def print_elem_gui(elem: dict, torrent: int) -> None:
         '''Print torrent element'''
         from PySide2.QtWidgets import QTableWidgetItem
         title_t = elem['name']
@@ -128,7 +129,7 @@ class NyaaSiDownloader():
         NyaaSiDownloader.tabella.resizeColumnsToContents()
 
     @staticmethod
-    def print_elem(elem):
+    def print_elem(elem: dict) -> None:
         '''Print torrent element'''
         title_t = elem['name']
         min_pos = 0
@@ -152,14 +153,14 @@ class NyaaSiDownloader():
             f" {NyaaSiDownloader.magenta}TYPE: {elem['movie_type']}{NyaaSiDownloader.reset_clr}")
 
     @staticmethod
-    def searchnyaasi_request(name_s):
+    def searchnyaasi_request(name_s: str) -> None:
         '''Request to the torrent site'''
         # sending get request and saving the response as response object
         url = f"https://nyaa.si/?f=0&c={NyaaSiDownloader.search_type}&q=/{name_s}"
         req = requests.get(url=url, params={})
         NyaaSiDownloader.searchnyaasi(req)
 
-    def avvia_ricerca(self):
+    def avvia_ricerca(self) -> None:
         '''avvio ricerca GUI'''
         from PySide2.QtWidgets import QTableWidget, QPushButton, QApplication, QComboBox
         # reset to allow multiple search
@@ -169,8 +170,10 @@ class NyaaSiDownloader():
             ]
     }
     '''
-        NyaaSiDownloader.category = NyaaSiDownloader.window.findChild(QComboBox, "category")
-        NyaaSiDownloader.search_type = NyaaSiDownloader.categories[NyaaSiDownloader.category.currentIndex()]
+        NyaaSiDownloader.category = NyaaSiDownloader.window.findChild(
+            QComboBox, "category")
+        NyaaSiDownloader.search_type = NyaaSiDownloader.categories[NyaaSiDownloader.category.currentIndex(
+        )]
         name_input = NyaaSiDownloader.titolo.text()
         NyaaSiDownloader.searchnyaasi_request(str(name_input))
         # populate tabel
@@ -180,8 +183,7 @@ class NyaaSiDownloader():
             QTableWidget, "tableWidget")
         NyaaSiDownloader.seleziona = NyaaSiDownloader.window.findChild(
             QPushButton, "select")
-        NyaaSiDownloader.seleziona.clicked.connect(
-            lambda: NyaaSiDownloader.get_selected_element(self))
+        NyaaSiDownloader.seleziona.clicked.connect(self.get_selected_element)
         NyaaSiDownloader.tabella.clearContents()
         NyaaSiDownloader.tabella.setRowCount(0)
         QApplication.processEvents()
@@ -191,7 +193,7 @@ class NyaaSiDownloader():
             NyaaSiDownloader.print_elem_gui(elem, pos)
             torrent += 1
 
-    def get_selected_element(self):
+    def get_selected_element(self) -> None:
         # GUI (first time only)
         NyaaSiDownloader.autoadd = NyaaSiDownloader.add.isChecked()
         # get multiple selection
@@ -202,11 +204,10 @@ class NyaaSiDownloader():
             if item.column() == 1:
                 # start download with each selected row
                 magnet = item_dict[item.row()]['magnet']
-                NyaaSiDownloader.start(self, magnet)
-                NyaaSiDownloader.get_magnet(self, item.row())
+                self.start(magnet)
         return
 
-    def choose(self):
+    def choose(self) -> None:
         '''Select torrent'''
         # write _____________
         print(f'{NyaaSiDownloader.underscore}'+' ' *
@@ -214,17 +215,22 @@ class NyaaSiDownloader():
         found = 0
         while found == 0:
             item_dict = json.loads(NyaaSiDownloader.json_torrent)
-            try:
-                number = int(input('Choose torrent: '))
-            except ValueError:
-                print(
-                    f"\n{NyaaSiDownloader.red}Not Valid!!{NyaaSiDownloader.reset_clr}\n")
-                NyaaSiDownloader.choose(self)
+            if (NyaaSiDownloader.workflow): 
+                number = 1
+            else:
+                try:
+                    number = int(input('Choose torrent: '))
+                except ValueError:
+                    print(
+                        f"\n{NyaaSiDownloader.red}Not Valid!!{NyaaSiDownloader.reset_clr}\n")
+                    self.choose()
             found = 1
             item_dict = json.loads(NyaaSiDownloader.json_torrent)[
                 'Torrent'][number-1]
             NyaaSiDownloader.print_elem(item_dict)
             conf = ""
+            if (NyaaSiDownloader.workflow): 
+                conf = 'y'
             while conf.lower() not in ['y', 'n']:
                 conf = input("\ny to confirm, n to repeat: ")
             if conf.lower() == 'n':
@@ -235,19 +241,19 @@ class NyaaSiDownloader():
                 item_dict = json.loads(NyaaSiDownloader.json_torrent)
                 if number < len(item_dict['Torrent']) and number >= 0:
                     magnet = item_dict['Torrent'][number]['magnet']
-                    NyaaSiDownloader.start(self, magnet)
+                    self.start(magnet)
                 else:
                     print(
                         f"{NyaaSiDownloader.red}Not Valid{NyaaSiDownloader.reset_clr}")
 
-    def get_magnet(self, position):
+    def get_magnet(self, position: int) -> None:
         '''function to get magnet link'''
         item_dict = json.loads(NyaaSiDownloader.json_torrent)[
             'Torrent'][position]
         magnet_link = item_dict['magnet']
-        NyaaSiDownloader.start(self, magnet_link)
+        self.start(magnet_link)
 
-    def start(self, magnet_link):
+    def start(self, magnet_link: str) -> None:
         '''start gui search'''
         # check magnet validity
         if (not NyaaSiDownloader.verify_magnet_link(magnet_link)):
@@ -285,6 +291,8 @@ class NyaaSiDownloader():
                     text = NyaaSiDownloader.magnet_window.findChild(
                         QTextEdit, "magnet_link")
                     text.insertPlainText(magnet_link)
+                    text.insertPlainText("\n")
+                    text.insertPlainText("\n")
                     NyaaSiDownloader.magnet_window.show()
                 else:
                     print(
@@ -292,15 +300,19 @@ class NyaaSiDownloader():
         else:
             if (self.gui):
                 from PySide2.QtWidgets import QTextEdit
-                text = NyaaSiDownloader.magnet_window.findChild(
+                text: QTextEdit = NyaaSiDownloader.magnet_window.findChild(
                     QTextEdit, "magnet_link")
+                # text.clear()
                 text.insertPlainText(magnet_link)
+                text.insertPlainText("\n")
+                text.insertPlainText("\n")
                 NyaaSiDownloader.magnet_window.show()
             else:
                 print(
                     f"\nMagnet:{NyaaSiDownloader.red}{magnet_link}{NyaaSiDownloader.reset_clr}\n")
 
-    def __init__(self, gui):
+    def __init__(self, gui: bool, wf:bool=False) -> None:
+        NyaaSiDownloader.workflow = wf
         self.gui = gui
         self_wrapp = self
         signal.signal(signal.SIGTERM, NyaaSiDownloader.sig_handler)
@@ -309,16 +321,17 @@ class NyaaSiDownloader():
             # GUI import
             from PySide2.QtWidgets import QCheckBox, QPushButton, QLineEdit
             from PySide2.QtCore import QObject
+            from PySide2.QtGui import QKeyEvent
 
             class KeyPressEater(QObject):
                 '''event filter '''
 
-                def eventFilter(self, widget, event):
+                def eventFilter(self, widget, event: QKeyEvent):
                     from PySide2.QtCore import QEvent, Qt
                     if (event.type() == QEvent.KeyPress):
                         key = event.key()
                         if key == Qt.Key_Return:
-                            NyaaSiDownloader.avvia_ricerca(self_wrapp)
+                            self_wrapp.avvia_ricerca()
                     return False
             NyaaSiDownloader.filtro = KeyPressEater()
             NyaaSiDownloader.titolo = NyaaSiDownloader.window.findChild(
@@ -327,8 +340,7 @@ class NyaaSiDownloader():
                 QPushButton, "cerca")
             NyaaSiDownloader.add = NyaaSiDownloader.window.findChild(
                 QCheckBox, "add")
-            NyaaSiDownloader.cerca.clicked.connect(
-                lambda: NyaaSiDownloader.avvia_ricerca(self_wrapp))
+            NyaaSiDownloader.cerca.clicked.connect(self.avvia_ricerca)
             NyaaSiDownloader.titolo.installEventFilter(
                 NyaaSiDownloader.filtro)
         else:
@@ -350,7 +362,7 @@ class NyaaSiDownloader():
                     f" {NyaaSiDownloader.bold_text}Torrent {torrent} :{NyaaSiDownloader.reset_clr}")
                 NyaaSiDownloader.print_elem(elem)
                 torrent += 1
-            NyaaSiDownloader.choose(self)
+            self.choose()
 
     @classmethod
     def sig_handler(cls, _signo, _stack_frame):

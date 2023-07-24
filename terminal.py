@@ -1,3 +1,3 @@
 import nyaa
 
-x = nyaa.NyaaSiDownloader(False)
+x = nyaa.NyaaSiDownloader(False, False)
