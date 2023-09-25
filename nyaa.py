@@ -9,11 +9,10 @@ import re
 import requests
 
 
-
 class NyaaSiDownloader():
     '''Torrent magnet link'''
     # text format
-    workflow:bool
+    workflow: bool
     bold_text = "\033[1m"
     underscore = "\x1b[4m"
     reset_clr = "\x1b[0m"
@@ -215,7 +214,11 @@ class NyaaSiDownloader():
         found = 0
         while found == 0:
             item_dict = json.loads(NyaaSiDownloader.json_torrent)
-            if (NyaaSiDownloader.workflow): 
+            if item_dict['Torrent'] == []:
+                print(
+                    f"{NyaaSiDownloader.red}No Torrent Found{NyaaSiDownloader.reset_clr}")
+                sys.exit(0)
+            if (NyaaSiDownloader.workflow):
                 number = 1
             else:
                 try:
@@ -229,7 +232,7 @@ class NyaaSiDownloader():
                 'Torrent'][number-1]
             NyaaSiDownloader.print_elem(item_dict)
             conf = ""
-            if (NyaaSiDownloader.workflow): 
+            if (NyaaSiDownloader.workflow):
                 conf = 'y'
             while conf.lower() not in ['y', 'n']:
                 conf = input("\ny to confirm, n to repeat: ")
@@ -311,7 +314,7 @@ class NyaaSiDownloader():
                 print(
                     f"\nMagnet:{NyaaSiDownloader.red}{magnet_link}{NyaaSiDownloader.reset_clr}\n")
 
-    def __init__(self, gui: bool, wf:bool=False) -> None:
+    def __init__(self, gui: bool, wf: bool = False) -> None:
         NyaaSiDownloader.workflow = wf
         self.gui = gui
         self_wrapp = self
