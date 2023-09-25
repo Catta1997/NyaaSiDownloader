@@ -156,7 +156,7 @@ class NyaaSiDownloader():
         '''Request to the torrent site'''
         # sending get request and saving the response as response object
         url = f"https://nyaa.si/?f=0&c={NyaaSiDownloader.search_type}&q=/{name_s}"
-        req = requests.get(url=url, params={})
+        req = requests.get(url=url, params={}, allow_redirects=False)
         NyaaSiDownloader.searchnyaasi(req)
 
     def avvia_ricerca(self) -> None:
