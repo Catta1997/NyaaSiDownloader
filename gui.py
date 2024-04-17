@@ -1,12 +1,13 @@
 import nyaa
 import sys
 from random import SystemRandom
+
 # GUI import
 try:
-    from PySide2.QtCore import QFile, QCoreApplication, Qt
-    from PySide2.QtUiTools import QUiLoader
-    from PySide2.QtWidgets import QApplication, QLabel
-    from PySide2.QtGui import QIcon, QPixmap
+    from PySide6.QtCore import QFile, QCoreApplication, Qt
+    from PySide6.QtUiTools import QUiLoader
+    from PySide6.QtWidgets import QApplication, QLabel
+    from PySide6.QtGui import QIcon, QPixmap
 except ModuleNotFoundError:
     bold_text = "\033[1m"
     red = "\x1b[31m"
@@ -18,7 +19,7 @@ QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
 app = QApplication(sys.argv)
 
 rand = SystemRandom()
-icon = rand.randrange(1,15)
+icon = rand.randrange(1, 15)
 app.setWindowIcon(QIcon(f"Resources/icon_{icon}.png"))
 install_ui = 'Resources/install.ui'
 magnet_ui = 'Resources/show.ui'
